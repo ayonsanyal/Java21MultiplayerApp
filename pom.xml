@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ayon.player_messaging_app</groupId>
-    <artifactId>pingpong</artifactId>
+    <artifactId>messaging-app</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -24,14 +24,86 @@
                 </configuration>
             </plugin>
 
-            <!-- Plugin to allow 'mvn exec:java' -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+
+                <configuration>
+                    <java>
+                        <!-- Use Google Java Format -->
+                        <googleJavaFormat/>
+
+                        <!-- Remove unused imports -->
+                        <removeUnusedImports/>
+
+                        <!-- Order imports -->
+                        <importOrder/>
+                    </java>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
-                <configuration>
-                    <mainClass>Main</mainClass>
-                </configuration>
+
+                <executions>
+
+                    <!-- Thread Based Messaging -->
+                    <execution>
+                        <id>thread-based-messaging</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>
+                                com.ayon.player_messaging_app.SingleProcessPlay
+                            </mainClass>
+                        </configuration>
+                    </execution>
+
+                    <!-- Receiver -->
+                    <execution>
+                        <id>receiver</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>
+                                com.ayon.player_messaging_app.MultipleProcessPlay
+                            </mainClass>
+                            <arguments>
+                                <argument>receiver</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                    <!-- Initiator -->
+                    <execution>
+                        <id>initiator</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>
+                                com.ayon.player_messaging_app.MultipleProcessPlay
+                            </mainClass>
+                            <arguments>
+                                <argument>initiator</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                </executions>
             </plugin>
         </plugins>
     </build>

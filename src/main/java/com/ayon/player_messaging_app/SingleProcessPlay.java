@@ -1,34 +1,26 @@
 package com.ayon.player_messaging_app;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import com.ayon.player_messaging_app.domain.Message;
 import com.ayon.player_messaging_app.domain.Player;
-import com.ayon.player_messaging_app.service.ServerCommand;
-import com.ayon.player_messaging_app.service.PingPongMessagingService;
+import com.ayon.player_messaging_app.service.MessagingService;
+import com.ayon.player_messaging_app.service.ThreadBasedMessagingService;
 
 public class SingleProcessPlay {
 
-    public static void main(String[] args) throws Exception {
-        Player player1 = new Player("1", "initiator");
-        Player player2 = new Player("2", "player2");
+  public static void main(String[] args) throws Exception {
 
-        PingPongMessagingService pingPongMessagingService = new PingPongMessagingService(20);
-        pingPongMessagingService.start();
+    MessagingService messagingService = ThreadBasedMessagingService.getInstance();
+    Player player1 = Player.createPlayer("1", "initiator", messagingService, 10, false);
+    Player player2 = Player.createPlayer("2", "player2", messagingService, 10, false);
 
-        // Kick off the very first "send-1"
-        Thread.startVirtualThread(() -> {
-            pingPongMessagingService.send(
-                    new Message(player1, player2, "send-1", ServerCommand.Play, 1)
-                                         );
-        });
+    Thread.startVirtualThread(player1);
+    Thread.startVirtualThread(player2);
 
-        Thread.sleep(5000);
-        System.out.println("Finished execution.");
-    }
+    Message initiatorMessage = Message.initiatorMessage();
+    // Initiate the messaging "send-1"
+    messagingService.send(initiatorMessage);
+
+    Thread.sleep(5000);
+    System.out.println("Finished execution thread based messaging.");
+  }
 }
